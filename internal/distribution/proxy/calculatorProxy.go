@@ -1,4 +1,4 @@
-package calculadoraproxy
+package calculatorproxy
 
 import (
 	"distributed-platforms/internal/distribution/requestor"
