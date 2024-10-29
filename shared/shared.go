@@ -7,6 +7,11 @@ type IOR struct {
 	TypeName string
 }
 
+type Invocation struct {
+	Ior     IOR
+	Request Request
+}
+
 type Request struct {
 	Operation string
 	Params    []interface{}
