@@ -2,11 +2,11 @@ package calculatorproxy
 
 import (
 	"distributed-platforms/internal/distribution/requestor"
-	"shared"
+	"distributed-platforms/internal/shared"
 )
 
 type CalculatorProxy struct {
-	Ior shared.Ior
+	Ior shared.IOR
 }
 
 func New(i shared.IOR) CalculatorProxy {
@@ -23,7 +23,7 @@ func (p *CalculatorProxy) Sum(p1, p2 int) int {
 
 	inv := shared.Invocation{Ior: p.Ior, Request: req}
 
-	requestor := requestor.Request{}
+	requestor := requestor.Requestor{}
 	r := requestor.Invoke(inv)
 
 	return int(r.Rep.Result[0].(float64))

@@ -15,7 +15,7 @@ func newRequestor() Requestor {
 }
 
 func (Requestor) Invoke(i shared.Invocation) shared.Termination {
-	reqPacket := miop.CreateRequestMIOP(i.Request.Op, i.Request.Params)
+	reqPacket := miop.CreateRequestMIOP(i.Request.Operation, i.Request.Params)
 
 	// Serialization
 	m := marshaller.Marshaller{}
@@ -24,7 +24,7 @@ func (Requestor) Invoke(i shared.Invocation) shared.Termination {
 	c := crh.NewCRH(i.Ior.Host, i.Ior.Port)
 	r := c.SendReceive(b)
 
-	repPacket := m.Unmarshal(r)
+	repPacket := m.Unmarshall(r)
 	rt := miop.ExtractReply(repPacket)
 
 	t := shared.Termination{Rep: rt}
