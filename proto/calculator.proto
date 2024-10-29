@@ -1,0 +1,12 @@
+service Calculaor {
+  rpc Sum (SumRequest) returns (SumReply) {}
+}
+
+message SumRequest {
+  int32 first_number = 1;
+  int32 second_number = 2;
+}
+
+message SumReply {
+  string result = 1;
+}
