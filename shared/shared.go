@@ -12,6 +12,10 @@ type Invocation struct {
 	Request Request
 }
 
+type Termination struct {
+	Rep Reply
+}
+
 type Request struct {
 	Operation string
 	Params    []interface{}
