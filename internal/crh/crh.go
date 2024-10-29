@@ -1,7 +1,7 @@
 package crh
 
 import (
-	"distributed-platforms/shared"
+	"distributed-platforms/internal/shared"
 	"encoding/binary"
 	"log"
 	"net"

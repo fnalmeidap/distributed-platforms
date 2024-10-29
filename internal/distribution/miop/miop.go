@@ -1,7 +1,7 @@
 package miop
 
 import (
-	"distributed-platforms/shared"
+	"distributed-platforms/internal/shared"
 )
 
 type Packet struct {

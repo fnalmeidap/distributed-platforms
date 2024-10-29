@@ -1,10 +1,10 @@
 package requestor
 
 import (
-	"distributed-platforms/distribution/marshaller"
-	"distributed-platforms/distribution/miop"
-	"distributed-platforms/infra/crh"
-	"distributed-platforms/shared"
+	"distributed-platforms/internal/distribution/marshaller"
+	"distributed-platforms/internal/distribution/miop"
+	"distributed-platforms/internal/infra/crh"
+	"distributed-platforms/internal/shared"
 )
 
 type Requestor struct {

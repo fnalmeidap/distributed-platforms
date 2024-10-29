@@ -1,7 +1,7 @@
 package marshaller
 
 import (
-	"distributed-platforms/distribution/miop"
+	"distributed-platforms/internal/distribution/miop"
 	"encoding/json"
 	"log"
 )

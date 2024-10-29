@@ -1,7 +1,7 @@
 package calculadoraproxy
 
 import (
-	"distributed-platforms/distribution/requestor"
+	"distributed-platforms/internal/distribution/requestor"
 	"shared"
 )
 
