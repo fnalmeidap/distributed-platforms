@@ -26,3 +26,5 @@ type Reply struct {
 }
 
 var MaxConnectionAttempts = 30
+var LocalHost = "localhost"
+var DefaultPort = 1999

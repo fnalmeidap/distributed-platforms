@@ -13,7 +13,7 @@ func StartServer(inv messaginginvoker.Invoker) {
 
 func main() {
 	// Instantiate application logic, invoker, and request handler
-	ior := shared.IOR{Host: "localhost", Port: 8080}
+	ior := shared.IOR{Host: shared.LocalHost, Port: shared.DefaultPort}
 	leaseManager := &lease.LeaseManager{Leases: make(map[string]lease.Lease)}
 	app := &calculator.Calculator{}
 	invoker := messaginginvoker.NewInvoker(ior.Host, ior.Port, app, leaseManager)

@@ -3,6 +3,7 @@ package calculatorproxy
 import (
 	"distributed-platforms/internal/distribution/requestor"
 	"distributed-platforms/internal/shared"
+	"fmt"
 )
 
 type CalculatorProxy struct {
@@ -20,8 +21,10 @@ func (p *CalculatorProxy) Sum(p1, p2 int) int {
 	params[1] = p2
 
 	req := shared.Request{Operation: "Sum", Params: params}
-
 	inv := shared.Invocation{Ior: p.Ior, Request: req}
+	fmt.Println("Request params...")
+	fmt.Printf("Operation: %s\n", req.Operation)
+	fmt.Printf("Parameters: [%d,%d]\n", req.Params...)
 
 	requestor := requestor.Requestor{}
 	r := requestor.Invoke(inv)
