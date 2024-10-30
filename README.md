@@ -9,6 +9,7 @@
 ### Server side
 - [ ] Server
 - [ ] Server request handler
-- [ ] Invoker
-- [ ] Marshaller (shared impl)
-- [ ] Calculator resource 
+- [&check;] Invoker
+- [&check;] Marshaller (shared impl)
+- [&check;] Calculator resource
+- [&check;] Leasing

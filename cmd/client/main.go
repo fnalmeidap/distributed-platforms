@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	ior := shared.IOR{Host: "localhost", Port: 9876}
+	ior := shared.IOR{Host: "localhost", Port: 8080}
 	c := calculatorproxy.New(ior)
 
 	c.Sum(1, 2)

@@ -9,18 +9,33 @@ import (
 
 	//"fmt"
 	calculator "distributed-platforms/internal/app/calculator"
+	lease "distributed-platforms/internal/lease"
 	"log"
+	"time"
 )
 
 type Invoker struct {
-	Ior shared.IOR
-	app *calculator.Calculator
+	Ior          shared.IOR
+	app          *calculator.Calculator
+	leaseManager *lease.LeaseManager
 }
 
-func NewInvoker(h string, p int, app *calculator.Calculator) Invoker {
+func NewInvoker(h string, p int, app *calculator.Calculator, leaseMan *lease.LeaseManager) Invoker {
 	i := shared.IOR{Host: h, Port: p}
-	r := Invoker{Ior: i, app: app}
+	r := Invoker{Ior: i, app: app, leaseManager: leaseMan}
 	return r
+}
+
+func OperationLeaseExists(op string, leaseManager *lease.LeaseManager) bool {
+	exists := false
+	for key := range leaseManager.Leases {
+		if op == key {
+			exists = true
+		} else {
+			exists = false
+		}
+	}
+	return exists
 }
 
 func (inv Invoker) Invoke() {
@@ -30,7 +45,7 @@ func (inv Invoker) Invoke() {
 	miopPacket := miop.Packet{}
 
 	var reply interface{}
-
+	duration := time.Duration(20 * float64(time.Second)) // 20s
 	for {
 		// Invoke SRH
 		b := s.Receive()
@@ -40,6 +55,13 @@ func (inv Invoker) Invoke() {
 
 		// Extract request from publisher
 		r := miop.ExtractRequest(miopPacket)
+
+		exists := OperationLeaseExists(r.Operation, inv.leaseManager)
+		if exists {
+			inv.leaseManager.UpdateLease(r.Operation, duration)
+		} else {
+			inv.leaseManager.NewLease(r.Operation, duration)
+		}
 
 		switch r.Operation {
 		case "Sum":
@@ -63,5 +85,7 @@ func (inv Invoker) Invoke() {
 
 		// Send marshalled packet
 		s.Send(b)
+
+		go inv.leaseManager.CleanupExpiredLeases()
 	}
 }
