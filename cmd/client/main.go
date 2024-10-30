@@ -12,4 +12,13 @@ func main() {
 
 	ans := c.Sum(1, 2)
 	fmt.Println("Answer:", ans)
+
+	ans = c.Sub(1, 2)
+	fmt.Println("Answer:", ans)
+
+	ans = c.Mul(1, 2)
+	fmt.Println("Answer:", ans)
+
+	ans = c.Div(1, 2)
+	fmt.Println("Answer:", ans)
 }

@@ -47,35 +47,30 @@ type ReplyBody struct {
 }
 
 func CreateRequestMIOP(op string, p []interface{}) Packet {
-	r := Packet{}
-
-	header := Header{}
-	body := Body{}
-
-	reqHeader := RequestHeader{Operation: op}
-	reqBody := RequestBody{Body: p}
-
-	body = Body{ReqHeader: reqHeader, ReqBody: reqBody}
-
-	r.Hdr = header
-	r.Bd = body
+	r := Packet{
+		Hdr: Header{},
+		Bd: Body{
+			ReqHeader: RequestHeader{
+				Operation: op,
+			},
+			ReqBody: RequestBody{
+				Body: p,
+			},
+		},
+	}
 
 	return r
 }
 
 func CreateReplyMIOP(params []interface{}) Packet {
-	r := Packet{}
-
-	header := Header{}
-	body := Body{}
-
-	repHeader := ReplyHeader{"", 1313, 1} // TODO
-	repBody := ReplyBody{OperationResult: params}
-
-	body = Body{RepHeader: repHeader, RepBody: repBody}
-
-	r.Hdr = header
-	r.Bd = body
+	r := Packet{
+		Hdr: Header{},
+		Bd: Body{
+			RepBody: ReplyBody{
+				OperationResult: params,
+			},
+		},
+	}
 
 	return r
 }
