@@ -56,6 +56,9 @@ func (inv Invoker) Invoke() {
 		// Extract request from publisher
 		r := miop.ExtractRequest(miopPacket)
 
+		_p1 := int(r.Params[0].(float64))
+		_p2 := int(r.Params[1].(float64))
+
 		exists := OperationLeaseExists(r.Operation, inv.leaseManager)
 		if exists {
 			inv.leaseManager.UpdateLease(r.Operation, duration)
@@ -65,10 +68,8 @@ func (inv Invoker) Invoke() {
 
 		switch r.Operation {
 		case "Sum":
-			//_p1 := r.Params[0].(string)
-			_p2 := r.Params[1].(int)
-			_p3 := r.Params[2].(int)
-			reply = inv.app.Sum(_p2, _p3)
+
+			reply = inv.app.Sum(_p1, _p2)
 		default:
 			log.Fatal("Invoker:: Operation '" + r.Operation + "' is unknown:: ")
 		}
