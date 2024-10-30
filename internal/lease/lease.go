@@ -36,7 +36,6 @@ func (lm *LeaseManager) UpdateLease(id string, duration time.Duration) {
 
 // Remove Leases expirados
 func (lm *LeaseManager) CleanupExpiredLeases() {
-	// TODO: enviar mensagem pro cliente dizendo que certo lease foi excluido
 	for {
 		time.Sleep(10 * time.Second)
 		lm.mu.Lock()
