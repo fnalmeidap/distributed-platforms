@@ -1,4 +1,4 @@
-package client
+package main
 
 import (
 	calculatorproxy "distributed-platforms/internal/distribution/proxy"

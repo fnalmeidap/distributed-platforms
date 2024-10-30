@@ -24,3 +24,5 @@ type Request struct {
 type Reply struct {
 	Result []interface{}
 }
+
+var MaxConnectionAttempts = 30

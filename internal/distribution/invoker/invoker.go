@@ -2,15 +2,12 @@ package messaginginvoker
 
 import (
 	marshaller "distributed-platforms/internal/distribution/marshaller"
-	"distributed-platforms/internal/distribution/miop"
+	miop "distributed-platforms/internal/distribution/miop"
 
-	//miop "distributed-platforms/internal/distribution/miop"
 	srh "distributed-platforms/internal/infra/srh"
 	shared "distributed-platforms/internal/shared"
 
 	//"fmt"
-	//"distributed-platforms/test/mymom/services/messagingservice"
-	//"distributed-platforms/test/mymom/services/messagingservice/event"
 	calculator "distributed-platforms/internal/app/calculator"
 	"log"
 )
@@ -45,7 +42,7 @@ func (inv Invoker) Invoke() {
 		r := miop.ExtractRequest(miopPacket)
 
 		switch r.Operation {
-		case "sum":
+		case "Sum":
 			//_p1 := r.Params[0].(string)
 			_p2 := r.Params[1].(int)
 			_p3 := r.Params[2].(int)
