@@ -83,7 +83,7 @@ func CreateReplyMIOP(params []interface{}) Packet {
 func ExtractRequest(m Packet) shared.Request {
 	i := shared.Request{}
 
-	i.Op = m.Bd.ReqHeader.Operation
+	i.Operation = m.Bd.ReqHeader.Operation
 	i.Params = m.Bd.ReqBody.Body
 
 	return i
