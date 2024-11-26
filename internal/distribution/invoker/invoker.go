@@ -1,13 +1,10 @@
-package messaginginvoker
+package calculatorinvoker
 
 import (
 	marshaller "distributed-platforms/internal/distribution/marshaller"
 	miop "distributed-platforms/internal/distribution/miop"
-
 	srh "distributed-platforms/internal/infra/srh"
 	shared "distributed-platforms/internal/shared"
-
-	//"fmt"
 	calculator "distributed-platforms/internal/app/calculator"
 	lease "distributed-platforms/internal/lease"
 	"log"
@@ -15,14 +12,12 @@ import (
 )
 
 type Invoker struct {
-	Ior          shared.IOR
-	app          *calculator.Calculator
-	leaseManager *lease.LeaseManager
+	Ior shared.IOR
 }
 
-func NewInvoker(h string, p int, app *calculator.Calculator, leaseMan *lease.LeaseManager) Invoker {
+func NewInvoker(h string, p int) Invoker {
 	i := shared.IOR{Host: h, Port: p}
-	r := Invoker{Ior: i, app: app, leaseManager: leaseMan}
+	r := Invoker{Ior: i}
 	return r
 }
 
@@ -41,41 +36,51 @@ func OperationLeaseExists(op string, leaseManager *lease.LeaseManager) bool {
 func (inv Invoker) Invoke() {
 	s := srh.NewSRH(inv.Ior.Host, inv.Ior.Port)
 	m := marshaller.Marshaller{}
+	var ans int
 
-	miopPacket := miop.Packet{}
+	c := calculator.Calculator{}
 
-	var reply interface{}
-	duration := time.Duration(20 * float64(time.Second)) // 20s
+	// Lease manager
+	leaseManager := lease.LeaseManager{Leases: make(map[string]lease.Lease)}
+	duration := time.Duration(shared.DefaultLeasingTimeSeconds * float64(time.Second))
+	go leaseManager.CleanupExpiredLeases()
+
 	for {
 		// Invoke SRH
 		b := s.Receive()
 
 		// Unmarshall miop packet
-		miopPacket = m.Unmarshall(b)
+		miopPacket := m.Unmarshall(b)
 
 		// Extract request from publisher
 		r := miop.ExtractRequest(miopPacket)
 
-		exists := OperationLeaseExists(r.Operation, inv.leaseManager)
+		_p1 := int(r.Params[0].(float64))
+		_p2 := int(r.Params[1].(float64))
+
+		exists := OperationLeaseExists(r.Operation, &leaseManager)
 		if exists {
-			inv.leaseManager.UpdateLease(r.Operation, duration)
+			leaseManager.UpdateLease(r.Operation, duration)
 		} else {
-			inv.leaseManager.NewLease(r.Operation, duration)
+			leaseManager.NewLease(r.Operation, duration)
 		}
 
 		switch r.Operation {
 		case "Sum":
-			//_p1 := r.Params[0].(string)
-			_p2 := r.Params[1].(int)
-			_p3 := r.Params[2].(int)
-			reply = inv.app.Sum(_p2, _p3)
+			ans = c.Sum(_p1, _p2)
+		case "Sub":
+			ans = c.Sub(_p1, _p2)
+		case "Mul":
+			ans = c.Mul(_p1, _p2)
+		case "Div":
+			ans = c.Div(_p1, _p2)
 		default:
 			log.Fatal("Invoker:: Operation '" + r.Operation + "' is unknown:: ")
 		}
 
 		// Prepare reply
 		var params []interface{}
-		params = append(params, reply)
+		params = append(params, ans)
 
 		// Create miop reply packet
 		miop := miop.CreateReplyMIOP(params)
@@ -85,7 +90,5 @@ func (inv Invoker) Invoke() {
 
 		// Send marshalled packet
 		s.Send(b)
-
-		go inv.leaseManager.CleanupExpiredLeases()
 	}
 }

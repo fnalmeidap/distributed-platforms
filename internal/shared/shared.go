@@ -25,4 +25,7 @@ type Reply struct {
 	Result []interface{}
 }
 
-var MaxConnectionAttempts = 30
+var MaxConnectionAttempts int = 30
+var LocalHost string = "localhost"
+var DefaultPort int = 1999
+var DefaultLeasingTimeSeconds float64 = 20
