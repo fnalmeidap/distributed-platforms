@@ -48,3 +48,15 @@ func (lm *LeaseManager) CleanupExpiredLeases() {
 		lm.mu.Unlock()
 	}
 }
+
+func (lm *LeaseManager) LeaseExists(op string) bool {
+	exists := false
+	for key := range lm.Leases {
+		if op == key {
+			exists = true
+		} else {
+			exists = false
+		}
+	}
+	return exists
+}
