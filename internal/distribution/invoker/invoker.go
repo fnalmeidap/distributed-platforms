@@ -6,7 +6,6 @@ import (
 	marshaller "distributed-platforms/internal/distribution/marshaller"
 	miop "distributed-platforms/internal/distribution/miop"
 	srh "distributed-platforms/internal/infra/srh"
-	lease "distributed-platforms/internal/lease"
 	shared "distributed-platforms/internal/shared"
 	"log"
 	"time"
@@ -26,13 +25,12 @@ func (inv Invoker) Invoke() {
 	s := srh.NewSRH(inv.Ior.Host, inv.Ior.Port)
 	lcm := lifecyclemanager.NewLifecycleManager()
 	m := marshaller.Marshaller{}
-	lm := lease.LeaseManager{Leases: make(map[string]lease.Lease)}
 	kDefaultLeaseDuration := time.Duration(shared.DefaultLeasingTimeSeconds * float64(time.Second))
 
 	var ans int
 	var c *calculator.Calculator
 
-	go lm.CleanupExpiredLeases()
+	go lcm.Lm.CleanupExpiredLeases()
 
 	for {
 		// Invoke SRH
@@ -45,7 +43,7 @@ func (inv Invoker) Invoke() {
 		r := miop.ExtractRequest(miopPacket)
 
 		// Leasing remote pattern implementation
-		lcm.Lease(&lm, kDefaultLeaseDuration, &c)
+		lcm.Lease(lcm.Lm, kDefaultLeaseDuration, &c)
 
 		_p1 := int(r.Params[0].(float64))
 		_p2 := int(r.Params[1].(float64))

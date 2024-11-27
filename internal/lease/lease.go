@@ -16,7 +16,7 @@ type LeaseManager struct {
 	Leases map[string]Lease
 }
 
-func (lm *LeaseManager) NewLeaseManager() *LeaseManager {
+func NewLeaseManager() *LeaseManager {
 	return &LeaseManager{
 		Leases: make(map[string]Lease),
 	}

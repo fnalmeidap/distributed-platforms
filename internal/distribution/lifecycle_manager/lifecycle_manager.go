@@ -9,10 +9,13 @@ import (
 )
 
 type LifecycleManager struct {
+	Lm *lease.LeaseManager
 }
 
 func NewLifecycleManager() *LifecycleManager {
-	return &LifecycleManager{}
+	return &LifecycleManager{
+		Lm: lease.NewLeaseManager(),
+	}
 }
 
 func (lcm LifecycleManager) Lease(lm *lease.LeaseManager, d time.Duration, c **calculator.Calculator) {
