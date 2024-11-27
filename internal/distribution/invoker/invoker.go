@@ -43,7 +43,7 @@ func (inv Invoker) Invoke() {
 		r := miop.ExtractRequest(miopPacket)
 
 		// Leasing remote pattern implementation
-		lcm.Lease(lcm.Lm, kDefaultLeaseDuration, &c)
+		lcm.Lease(kDefaultLeaseDuration, &c)
 
 		_p1 := int(r.Params[0].(float64))
 		_p2 := int(r.Params[1].(float64))
