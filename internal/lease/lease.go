@@ -16,6 +16,12 @@ type LeaseManager struct {
 	Leases map[string]Lease
 }
 
+func NewLeaseManager() *LeaseManager {
+	return &LeaseManager{
+		Leases: make(map[string]Lease),
+	}
+}
+
 func (lm *LeaseManager) NewLease(id string, duration time.Duration) {
 	lm.mu.Lock()
 	defer lm.mu.Unlock()
@@ -37,9 +43,10 @@ func (lm *LeaseManager) UpdateLease(id string, duration time.Duration) {
 // Remove Leases expirados
 func (lm *LeaseManager) CleanupExpiredLeases() {
 	for {
-		time.Sleep(10 * time.Second)
+		time.Sleep(1 * time.Second)
 		lm.mu.Lock()
 		for id, lease := range lm.Leases {
+			fmt.Println("Lease expiring in", time.Until(lease.expiresAt).Seconds())
 			if time.Now().After(lease.expiresAt) {
 				fmt.Printf("Lease %s expirou e foi removido\n", id)
 				delete(lm.Leases, id)
@@ -47,4 +54,16 @@ func (lm *LeaseManager) CleanupExpiredLeases() {
 		}
 		lm.mu.Unlock()
 	}
+}
+
+func (lm *LeaseManager) LeaseExists(op string) bool {
+	exists := false
+	for key := range lm.Leases {
+		if op == key {
+			exists = true
+		} else {
+			exists = false
+		}
+	}
+	return exists
 }
