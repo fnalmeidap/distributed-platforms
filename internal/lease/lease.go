@@ -12,8 +12,9 @@ type Lease struct {
 }
 
 type LeaseManager struct {
-	mu     sync.Mutex
-	Leases map[string]Lease
+	mu        sync.Mutex
+	Leases    map[string]Lease
+	LeaseType int
 }
 
 func NewLeaseManager() *LeaseManager {
@@ -38,6 +39,13 @@ func (lm *LeaseManager) UpdateLease(id string, duration time.Duration) {
 	expiration := time.Now().Add(duration)
 	lm.Leases[id] = Lease{id: id, expiresAt: expiration}
 	fmt.Printf("Lease %s renovado. Agora expira em: %v\n", id, expiration)
+}
+
+func (lm *LeaseManager) LeaseTypeSet(leaseType int) {
+	lm.mu.Lock()
+	defer lm.mu.Unlock()
+
+	lm.LeaseType = leaseType
 }
 
 // Remove Leases expirados

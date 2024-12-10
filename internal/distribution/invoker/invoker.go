@@ -45,25 +45,50 @@ func (inv Invoker) Invoke() {
 		// Leasing remote pattern implementation
 		lcm.Lease(kDefaultLeaseDuration, &c)
 
-		_p1 := int(r.Params[0].(float64))
-		_p2 := int(r.Params[1].(float64))
+		if r.Operation == "LeaseType" {
+			_p1 := r.Params[0].(string)
+			var a int
+			a = -1
+			switch _p1 {
+			case "lease_type_0":
+				a = 0
+			case "lease_type_1":
+				a = 1
+			case "lease_type_2":
+				a = 2
+			default:
+				log.Fatal("Invoker:: Operation '" + r.Operation + "' is unknown:: ")
+			}
+			lcm.LeaseTypeSet(a) //_p2 is not used here.
+			ans = 0
+		} else {
 
-		switch r.Operation {
-		case "Sum":
-			ans = c.Sum(_p1, _p2)
-		case "Sub":
-			ans = c.Sub(_p1, _p2)
-		case "Mul":
-			ans = c.Mul(_p1, _p2)
-		case "Div":
-			ans = c.Div(_p1, _p2)
-		default:
-			log.Fatal("Invoker:: Operation '" + r.Operation + "' is unknown:: ")
+			_p1 := int(r.Params[0].(float64))
+			_p2 := int(r.Params[1].(float64))
+
+			switch r.Operation {
+			case "Sum":
+				ans = c.Sum(_p1, _p2)
+			case "Sub":
+				ans = c.Sub(_p1, _p2)
+			case "Mul":
+				ans = c.Mul(_p1, _p2)
+			case "Div":
+				ans = c.Div(_p1, _p2)
+			case "LeaseExtend":
+				lcm.RenewLease_v2(_p1) //_p2 is not used here.
+				ans = 0
+			default:
+				log.Fatal("Invoker:: Operation '" + r.Operation + "' is unknown:: ")
+			}
 		}
 
 		// Prepare reply
 		var params []interface{}
 		params = append(params, ans)
+
+		//TODO: make this variable depending if the lease is still valid or not
+		params = append(params, "ok")
 
 		// Create miop reply packet
 		miop := miop.CreateReplyMIOP(params)
