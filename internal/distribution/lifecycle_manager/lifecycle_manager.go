@@ -22,7 +22,10 @@ func (lcm LifecycleManager) Lease(d time.Duration, c **calculator.Calculator) {
 	// If lease for calculator exists, renew it and return
 	if lcm.HasLease() {
 		fmt.Println("HAS LEASE")
-		lcm.RenewLease()
+		if lcm.Lm.LeaseType == 0 {
+			fmt.Println("\t como lease pertence a tipo 0, lease renovado a cada chamada")
+			lcm.RenewLease()
+		}
 		return
 	}
 
@@ -49,6 +52,14 @@ func (lcm LifecycleManager) DestroyObject(c **calculator.Calculator) {
 
 func (lcm LifecycleManager) RenewLease() {
 	lcm.Lm.UpdateLease("calculator", time.Duration(shared.DefaultLeasingTimeSeconds*float64(time.Second)))
+}
+
+func (lcm LifecycleManager) RenewLease_v2(T int) {
+	lcm.Lm.UpdateLease("calculator", time.Duration(float64(T)*float64(time.Second)))
+}
+
+func (lcm LifecycleManager) LeaseTypeSet(leaseType int) {
+	lcm.Lm.LeaseTypeSet(leaseType)
 }
 
 func (lcm LifecycleManager) HasLease() bool {

@@ -10,27 +10,56 @@ import (
 	"strings"
 )
 
-func leaseExtend(T int) {
-	fmt.Println("Command to extend lease by", T, "seconds!")
+func leaseExtend(T int, c calculatorproxy.CalculatorProxy) {
+	_, status := c.LeaseExtend(T)
+	if status == "ok" {
+		// Display the result
+		fmt.Println("Command to extend lease by", T, "seconds!")
+		return
+	} else {
+		fmt.Println("operation not available. status: ", status)
+		return
+	}
+}
+
+func leaseTypeSet(lease string, c calculatorproxy.CalculatorProxy) {
+	_, status := c.LeaseTypeSet(lease)
+	if status == "ok" {
+		// Display the result
+		fmt.Println("Command sent correctly")
+		return
+	} else {
+		fmt.Println("operation not available. status: ", status)
+		return
+	}
+
 }
 
 func calculation(num1 int, num2 int, operator string, c calculatorproxy.CalculatorProxy) {
 	var result int
+	var status string
 	switch operator {
 	case "+":
-		result = c.Sum(num1, num2)
+		result, status = c.Sum(num1, num2)
 	case "-":
-		result = c.Sub(num1, num2)
+		result, status = c.Sub(num1, num2)
 	case "*":
-		result = c.Mul(num1, num2)
+		result, status = c.Mul(num1, num2)
 	case "/":
-		result = c.Div(num1, num2)
+		result, status = c.Div(num1, num2)
 	default:
 		fmt.Println("Invalid operator. Use one of: +, -, *, /")
 		return
 	}
-	// Display the result
-	fmt.Println("Result:", result)
+
+	if status == "ok" {
+		// Display the result
+		fmt.Println("Result:", result)
+		return
+	} else {
+		fmt.Println("operation not available. status: ", status)
+		return
+	}
 
 }
 
@@ -63,12 +92,18 @@ func main() {
 		if input == "lease_type_0" {
 			// nesse tipo de invocacao, o lease eh renovado a cada chamada do obj remoto.
 			fmt.Println("TIPO 0")
+			c.LeaseTypeSet("lease_type_0")
+			continue
 		}
 		if input == "lease_type_1" {
-			// nesse tipo de invocacao, o lease eh renovado por uma chamada especifica do cliente: leaseExtend(T int)
+			// nesse tipo de invocacao, o lease somente eh renovado por uma chamada especifica do cliente: leaseExtend()
 			fmt.Println("TIPO 1")
+			c.LeaseTypeSet("lease_type_1")
+			continue
 		}
 		if input == "lease_type_2" {
+			c.LeaseTypeSet("lease_type_2")
+			continue
 			/**
 			The distributed object middleware informs the client of a lease’s
 			upcoming expiration, allowing the client to specify an extension
@@ -99,29 +134,27 @@ func main() {
 				continue
 			}
 			if parts[0] == "extend_lease" {
-				leaseExtend(int(T))
+				leaseExtend(int(T), c)
 			}
-			continue
+		} else {
+			// Parse the numbers
+			num1, err := strconv.ParseInt(parts[0], 10, 0)
+			if err != nil {
+				fmt.Println("Invalid number:", parts[0])
+				continue
+			}
+
+			num2, err := strconv.ParseInt(parts[2], 10, 0)
+			if err != nil {
+				fmt.Println("Invalid number:", parts[2])
+				continue
+			}
+
+			// Get the operator
+			operator := parts[1]
+
+			calculation(int(num1), int(num2), operator, c)
 		}
-
-		// Parse the numbers
-		num1, err := strconv.ParseInt(parts[0], 10, 0)
-		if err != nil {
-			fmt.Println("Invalid number:", parts[0])
-			continue
-		}
-
-		num2, err := strconv.ParseInt(parts[2], 10, 0)
-		if err != nil {
-			fmt.Println("Invalid number:", parts[2])
-			continue
-		}
-
-		// Get the operator
-		operator := parts[1]
-
-		calculation(int(num1), int(num2), operator, c)
-
 	}
 
 }
