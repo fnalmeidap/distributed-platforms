@@ -25,7 +25,13 @@ type Reply struct {
 	Result []interface{}
 }
 
-var MaxConnectionAttempts int = 30
-var LocalHost string = "localhost"
-var DefaultPort int = 1999
-var DefaultLeasingTimeSeconds float64 = 20
+func NewIOR(h string, p int) IOR {
+	return IOR{Host: h, Port: p, Id: 0, TypeName: ""}
+}
+
+const MaxConnectionAttempts int = 30
+const LocalHost string = "localhost"
+const DefaultPort int = 1999
+const DefaultLeasingTimeSeconds float64 = 15
+const NamingPort int = 1313
+const CalculadoraPort int = 1314
