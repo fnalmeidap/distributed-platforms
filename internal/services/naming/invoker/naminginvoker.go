@@ -1,6 +1,7 @@
 package naminginvoker
 
 import (
+	"fmt"
 	"log"
 
 	"distributed-platforms/internal/distribution/marshaller"
@@ -44,14 +45,17 @@ func (i Invoker) Invoke() {
 		case "Find":
 			_p1 := r.Params[0].(string)
 			rep = n.Find(_p1)
+			fmt.Println("Find")
 		case "Bind":
 			_p1 := r.Params[0].(string)
 			_p22 := r.Params[1].(map[string]interface{})
 			_ior := shared.IOR{Host: _p22["Host"].(string), Port: int(_p22["Port"].(float64)), Id: int(_p22["Id"].(float64)), TypeName: _p22["TypeName"].(string)}
 			_p2 := _ior
 			rep = n.Bind(_p1, _p2)
+			fmt.Println("Bind")
 		case "List":
 			rep = n.List()
+			fmt.Println("List")
 		default:
 			log.Fatal("Invoker:: Operation '" + r.Operation + "' is unknown:: ")
 		}

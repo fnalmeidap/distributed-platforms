@@ -2,12 +2,14 @@ package main
 
 import (
 	calculatorproxy "distributed-platforms/internal/distribution/proxy"
+	namingproxy "distributed-platforms/internal/services/naming/proxy"
 	shared "distributed-platforms/internal/shared"
 	"fmt"
 )
 
 func main() {
-	ior := shared.IOR{Host: shared.LocalHost, Port: shared.DefaultPort}
+	naming := namingproxy.New(shared.LocalHost, shared.NamingPort)
+	ior := naming.Find("Calculadora")
 	c := calculatorproxy.New(ior)
 
 	ans := c.Sum(1, 2)

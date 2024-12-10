@@ -21,13 +21,13 @@ func NewLifecycleManager() *LifecycleManager {
 func (lcm LifecycleManager) Lease(d time.Duration, c **calculator.Calculator) {
 	// If lease for calculator exists, renew it and return
 	if lcm.HasLease() {
-		fmt.Println("HAS LEASE")
+		// fmt.Println("HAS LEASE")
 		lcm.RenewLease()
 		return
 	}
 
 	// Creates new lease if no lease is currently active
-	fmt.Println("DOES NOT HAS LEASE")
+	// fmt.Println("DOES NOT HAS LEASE")
 	lcm.CreateLease(d, c)
 }
 
@@ -52,7 +52,7 @@ func (lcm LifecycleManager) RenewLease() {
 }
 
 func (lcm LifecycleManager) HasLease() bool {
-	fmt.Println("Checking if lease exists")
+	// fmt.Println("Checking if lease exists")
 	return lcm.Lm.LeaseExists("calculator")
 }
 

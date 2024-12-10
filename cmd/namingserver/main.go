@@ -8,15 +8,12 @@ import (
 )
 
 func main() {
-
-	go namingServer()
-
-	fmt.Println("'Servidor de Nomes' em execução...")
-	fmt.Scanln()
+	StartNamingServer()
 }
 
-func namingServer() {
-	// Start messagingservice invoker
+func StartNamingServer() {
+	fmt.Println("Naming Service running...")
+
 	i := naminginvoker.New(shared.LocalHost, shared.NamingPort)
-	go i.Invoke()
+	i.Invoke()
 }
