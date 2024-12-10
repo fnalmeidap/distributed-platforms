@@ -70,8 +70,8 @@ func main() {
 	fmt.Println("Welcome to the Calculator!")
 	fmt.Println("Enter your calculation in the format: number1 operator number2 (e.g., 12 + 5)")
 	fmt.Println("Type 'exit' to quit, 'extend_lease' to keep using calculator, 'lease_type_[x]' to set the type of leasing, [x] can be 0, 1 or 2 ")
-	
-  naming := namingproxy.New(shared.LocalHost, shared.NamingPort)
+
+	naming := namingproxy.New(shared.LocalHost, shared.NamingPort)
 	ior := naming.Find("calculator")
 	c := calculatorproxy.New(ior)
 
@@ -94,17 +94,17 @@ func main() {
 		if input == "lease_type_0" {
 			// nesse tipo de invocacao, o lease eh renovado a cada chamada do obj remoto.
 			fmt.Println("TIPO 0")
-			c.LeaseTypeSet("lease_type_0")
+			leaseTypeSet("lease_type_0", c)
 			continue
 		}
 		if input == "lease_type_1" {
 			// nesse tipo de invocacao, o lease somente eh renovado por uma chamada especifica do cliente: leaseExtend()
 			fmt.Println("TIPO 1")
-			c.LeaseTypeSet("lease_type_1")
+			leaseTypeSet("lease_type_1", c)
 			continue
 		}
 		if input == "lease_type_2" {
-			c.LeaseTypeSet("lease_type_2")
+			leaseTypeSet("lease_type_2", c)
 			fmt.Println("TIPO 2")
 			continue
 			/**
@@ -125,7 +125,7 @@ func main() {
 		parts := strings.Split(input, " ")
 
 		if (len(parts) != 3) && (len(parts) != 2) {
-			fmt.Println("Invalid input format. Use: number1 operator number2")
+			fmt.Println("Invalid input format. Use: number1 operator number2 for operation\n\rOR\n\rextend_lease [extra lease time in sec]")
 			continue
 		}
 

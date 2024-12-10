@@ -12,6 +12,7 @@ type CalculatorProxy struct {
 
 func New(i shared.IOR) CalculatorProxy {
 	r := CalculatorProxy{Ior: i}
+	r.LeaseTypeSet("lease_type_0") //This is the default lease type
 	return r
 }
 

@@ -3,6 +3,7 @@ package namingproxy
 import (
 	"distributed-platforms/internal/distribution/requestor"
 	"distributed-platforms/internal/shared"
+	"fmt"
 )
 
 type NamingProxy struct {
@@ -37,29 +38,29 @@ func (h *NamingProxy) Bind(_p1 string, _p2 shared.IOR) bool {
 }
 
 func (h *NamingProxy) Find(_p1 string) shared.IOR {
-
+	fmt.Printf("onias1")
 	// 1. Configure input parameters
 	params := make([]interface{}, 1)
 	params[0] = _p1
-
+	fmt.Printf("onias2")
 	// Configure remote request
 	req := shared.Request{Operation: "Find", Params: params}
-
+	fmt.Printf("onias3")
 	// Prepare invocation to Requestor
 	inv := shared.Invocation{Ior: h.Ior, Request: req}
-
+	fmt.Printf("onias4")
 	// Invoke Requestor
 	requestor := requestor.Requestor{}
 	_r1 := requestor.Invoke(inv).Rep.Result
 	_r2 := _r1[0].(map[string]interface{})
-
+	fmt.Printf("onias5")
 	//4. Return something to the publisher
 	_ior := shared.IOR{}
 	_ior.Host = _r2["Host"].(string)
 	_ior.Port = int(_r2["Port"].(float64))
 	_ior.Id = int(_r2["Id"].(float64))
 	_ior.TypeName = _r2["TypeName"].(string)
-
+	fmt.Printf("onias6")
 	return _ior
 }
 
