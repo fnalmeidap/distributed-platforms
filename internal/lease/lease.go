@@ -59,6 +59,13 @@ func (lm *LeaseManager) CleanupExpiredLeases() {
 		lm.mu.Lock()
 		for id, lease := range lm.Leases {
 			fmt.Println("Lease expiring in", time.Until(lease.expiresAt).Seconds())
+			if lm.LeaseType == 2 {
+				if time.Now().After(lease.expiresAt.Add(-6*time.Second)) && time.Now().Before(lease.expiresAt.Add(-5*time.Second)) {
+					fmt.Println("Warning Client that resource will be deleted in 5 s ")
+					// TODO: HOW???!!
+				}
+			}
+
 			if time.Now().After(lease.expiresAt) {
 				fmt.Printf("Lease %s expirou e foi removido\n", id)
 				delete(lm.Leases, id)

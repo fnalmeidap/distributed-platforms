@@ -105,6 +105,7 @@ func main() {
 		}
 		if input == "lease_type_2" {
 			c.LeaseTypeSet("lease_type_2")
+			fmt.Println("TIPO 2")
 			continue
 			/**
 			The distributed object middleware informs the client of a lease’s
@@ -118,7 +119,6 @@ func main() {
 			liability is that clients need to be able to handle such messages, which typically requires them to provide callback remote objects,
 			so they have to be servers, too.
 			*/
-			fmt.Println("TIPO 2")
 		}
 
 		// Split the input
