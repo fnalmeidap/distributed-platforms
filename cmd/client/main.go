@@ -10,6 +10,10 @@ import (
 	"strings"
 )
 
+func leaseExtend(T int) {
+	fmt.Println("Command to extend lease by", T, "seconds!")
+}
+
 func calculation(num1 int, num2 int, operator string, c calculatorproxy.CalculatorProxy) {
 	var result int
 	switch operator {
@@ -35,7 +39,7 @@ func main() {
 
 	fmt.Println("Welcome to the Calculator!")
 	fmt.Println("Enter your calculation in the format: number1 operator number2 (e.g., 12 + 5)")
-	fmt.Println("Type 'exit' to quit, 'extend_lease' to keep using calculator")
+	fmt.Println("Type 'exit' to quit, 'extend_lease' to keep using calculator, 'lease_type_[x]' to set the type of leasing, [x] can be 0, 1 or 2 ")
 
 	ior := shared.IOR{Host: shared.LocalHost, Port: shared.DefaultPort}
 	c := calculatorproxy.New(ior)
@@ -56,24 +60,47 @@ func main() {
 			break
 		}
 
-		if input == "extend_lease" {
-			fmt.Println("Command to extend lease!")
-		}
-
 		if input == "lease_type_0" {
+			// nesse tipo de invocacao, o lease eh renovado a cada chamada do obj remoto.
 			fmt.Println("TIPO 0")
 		}
 		if input == "lease_type_1" {
+			// nesse tipo de invocacao, o lease eh renovado por uma chamada especifica do cliente: leaseExtend(T int)
 			fmt.Println("TIPO 1")
 		}
 		if input == "lease_type_2" {
+			/**
+			The distributed object middleware informs the client of a lease’s
+			upcoming expiration, allowing the client to specify an extension
+			period. The client does not have to keep track of lease expiration
+			itself, and thus the logic to manage the lifecycle of its remote
+			objects becomes simpler.
+
+			On the other hand, as network communication is unreliable, lease expiration messages might get lost and
+			remote objects might be destroyed unintentionally. A further
+			liability is that clients need to be able to handle such messages, which typically requires them to provide callback remote objects,
+			so they have to be servers, too.
+			*/
 			fmt.Println("TIPO 2")
 		}
 
 		// Split the input
 		parts := strings.Split(input, " ")
-		if len(parts) != 3 {
+
+		if (len(parts) != 3) && (len(parts) != 2) {
 			fmt.Println("Invalid input format. Use: number1 operator number2")
+			continue
+		}
+
+		if len(parts) == 2 {
+			T, err := strconv.ParseInt(parts[1], 10, 0)
+			if err != nil {
+				fmt.Println("Invalid number:", parts[1])
+				continue
+			}
+			if parts[0] == "extend_lease" {
+				leaseExtend(int(T))
+			}
 			continue
 		}
 
