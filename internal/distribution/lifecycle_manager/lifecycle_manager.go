@@ -27,7 +27,7 @@ func (lcm LifecycleManager) Lease(d time.Duration, c **calculator.Calculator) {
 	}
 
 	// Creates new lease if no lease is currently active
-	fmt.Println("DOES NOT HAS LEASE")
+	fmt.Println("DOES NOT HAVE LEASE")
 	lcm.CreateLease(d, c)
 }
 
