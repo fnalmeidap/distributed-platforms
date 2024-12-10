@@ -94,3 +94,23 @@ func (h *NamingProxy) List() []shared.IOR {
 	//4. Return something to the publisher
 	return _r3
 }
+
+func (h *NamingProxy) Unbind(_p1 string) bool {
+
+	// 1. Configure input parameters
+	params := make([]interface{}, 1)
+	params[0] = _p1
+
+	// Configure remote request
+	req := shared.Request{Operation: "Unbind", Params: params}
+
+	// Prepare invocation to Requestor
+	inv := shared.Invocation{Ior: h.Ior, Request: req}
+
+	// Invoke Requestor
+	requestor := requestor.Requestor{}
+	r := requestor.Invoke(inv)
+
+	//4. Return something to the publisher
+	return r.Rep.Result[0].(bool)
+}

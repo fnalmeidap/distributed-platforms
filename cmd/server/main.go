@@ -21,7 +21,7 @@ func main() {
 	ior := shared.IOR{Host: shared.LocalHost, Port: shared.DefaultPort}
 	invoker := calculatorinvoker.NewInvoker(ior.Host, ior.Port)
 
-	naming.Bind("Calculadora", shared.NewIOR(invoker.Ior.Host, invoker.Ior.Port))
+	naming.Bind("calculator", shared.NewIOR(invoker.Ior.Host, invoker.Ior.Port))
 
 	StartServer(invoker)
 }

@@ -9,7 +9,7 @@ import (
 
 func main() {
 	naming := namingproxy.New(shared.LocalHost, shared.NamingPort)
-	ior := naming.Find("Calculadora")
+	ior := naming.Find("calculator")
 	c := calculatorproxy.New(ior)
 
 	ans := c.Sum(1, 2)
