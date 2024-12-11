@@ -1,6 +1,8 @@
 package lease
 
 import (
+	"distributed-platforms/internal/distribution/requestor"
+	"distributed-platforms/internal/shared"
 	"fmt"
 	"sync"
 	"time"
@@ -29,7 +31,7 @@ func (lm *LeaseManager) NewLease(id string, duration time.Duration) {
 
 	expiration := time.Now().Add(duration)
 	lm.Leases[id] = Lease{id: id, expiresAt: expiration}
-	lm.LeaseType = 0 //default value
+	lm.LeaseType = 2 //default value
 	fmt.Printf("Lease %s criado. Expira em: %v\n", id, expiration)
 }
 
@@ -49,8 +51,21 @@ func (lm *LeaseManager) LeaseTypeSet(leaseType int) {
 	lm.LeaseType = leaseType
 }
 
+func clientSendMsg(iorToServer shared.IOR, id string) {
+	params := make([]interface{}, 2)
+	params[0] = id
+	params[1] = 0
+
+	req := shared.Request{Operation: "ReleaseWarn", Params: params}
+	inv := shared.Invocation{Ior: iorToServer, Request: req}
+
+	requestor := requestor.Requestor{}
+	requestor.Invoke(inv)
+
+}
+
 // Remove Leases expirados
-func (lm *LeaseManager) CleanupExpiredLeases(ch chan string) {
+func (lm *LeaseManager) CleanupExpiredLeases(iorToServer shared.IOR) {
 	for {
 		time.Sleep(1 * time.Second)
 		lm.mu.Lock()
@@ -59,8 +74,7 @@ func (lm *LeaseManager) CleanupExpiredLeases(ch chan string) {
 			if lm.LeaseType == 2 {
 				if time.Now().After(lease.expiresAt.Add(-6*time.Second)) && time.Now().Before(lease.expiresAt.Add(-5*time.Second)) {
 					fmt.Println("Warning Client that resource will be deleted in 5 s ")
-					ch <- id
-					// TODO: HOW???!!
+					clientSendMsg(iorToServer, id)
 				}
 			}
 			if time.Now().After(lease.expiresAt) {

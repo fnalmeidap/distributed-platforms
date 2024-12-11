@@ -71,7 +71,10 @@ func main() {
 	fmt.Println("Type 'exit' to quit, 'extend_lease' to keep using calculator, 'lease_type_[x]' to set the type of leasing, [x] can be 0, 1 or 2 ")
 
 	ior := shared.IOR{Host: shared.LocalHost, Port: shared.DefaultPort}
+	iorFromServer := shared.IOR{Host: shared.LocalHost, Port: shared.DefaultPortClientServer}
 	c := calculatorproxy.New(ior)
+
+	go c.AliveCheck(iorFromServer)
 
 	for {
 		// Prompt user for input
@@ -117,12 +120,11 @@ func main() {
 			*/
 
 		} else {
-			fmt.Println("AAAAAAAAAA")
 			// Split the input
 			parts := strings.Split(input, " ")
 
 			if (len(parts) != 3) && (len(parts) != 2) {
-				fmt.Println("Invalid input format. Use: number1 operator number2")
+				fmt.Println("Invalid input format. Use: number1 operator number2 for operation\n\rOR\n\rextend_lease [extra lease time in sec]")
 				continue
 			}
 

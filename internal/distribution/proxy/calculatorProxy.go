@@ -1,7 +1,10 @@
 package calculatorproxy
 
 import (
+	"distributed-platforms/internal/distribution/marshaller"
+	"distributed-platforms/internal/distribution/miop"
 	"distributed-platforms/internal/distribution/requestor"
+	"distributed-platforms/internal/infra/srh"
 	"distributed-platforms/internal/shared"
 	"fmt"
 )
@@ -110,4 +113,27 @@ func (p *CalculatorProxy) LeaseTypeSet(lease string) (int, string) {
 	r := requestor.Invoke(inv)
 
 	return int(r.Rep.Result[0].(float64)), r.Rep.Result[1].(string)
+}
+
+func (p *CalculatorProxy) AliveCheck(ior shared.IOR) {
+	s := srh.NewSRH(ior.Host, ior.Port)
+
+	m := marshaller.Marshaller{}
+
+	for {
+		b := s.Receive()
+
+		// Unmarshall miop packet
+		miopPacket := m.Unmarshall(b)
+
+		// Extract request from publisher
+		r := miop.ExtractRequest(miopPacket)
+
+		if r.Operation == "ReleaseWarn" {
+			_p1 := r.Params[0].(string)
+			fmt.Print("lease of id", _p1, "will expire\n> ")
+		}
+
+		s.Send(b) // i dont care about this answer
+	}
 }

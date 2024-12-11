@@ -28,4 +28,5 @@ type Reply struct {
 var MaxConnectionAttempts int = 30
 var LocalHost string = "localhost"
 var DefaultPort int = 1999
-var DefaultLeasingTimeSeconds float64 = 7
+var DefaultPortClientServer int = 1998
+var DefaultLeasingTimeSeconds float64 = 10

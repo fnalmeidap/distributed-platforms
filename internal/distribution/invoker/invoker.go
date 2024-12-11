@@ -7,7 +7,6 @@ import (
 	miop "distributed-platforms/internal/distribution/miop"
 	srh "distributed-platforms/internal/infra/srh"
 	shared "distributed-platforms/internal/shared"
-	"fmt"
 	"log"
 	"time"
 )
@@ -31,8 +30,8 @@ func (inv Invoker) Invoke() {
 	var ans int
 	var c *calculator.Calculator
 
-	dataChannel := make(chan string)
-	go lcm.Lm.CleanupExpiredLeases(dataChannel)
+	iorToServer := shared.IOR{Host: shared.LocalHost, Port: shared.DefaultPortClientServer}
+	go lcm.Lm.CleanupExpiredLeases(iorToServer)
 
 	for {
 
@@ -47,10 +46,6 @@ func (inv Invoker) Invoke() {
 
 		// Leasing remote pattern implementation
 		lcm.Lease(kDefaultLeaseDuration, &c)
-
-		for message := range dataChannel {
-			fmt.Println("f1 received:", message)
-		}
 
 		if r.Operation == "LeaseType" {
 			_p1 := r.Params[0].(string)
