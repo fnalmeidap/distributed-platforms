@@ -14,6 +14,6 @@ func main() {
 func StartNamingServer() {
 	fmt.Println("Naming Service running...")
 
-	i := naminginvoker.New(shared.LocalHost, shared.NamingPort)
+	i := naminginvoker.New(shared.LocalHost, shared.NamingServicePort)
 	i.Invoke()
 }

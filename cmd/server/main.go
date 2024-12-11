@@ -15,10 +15,10 @@ func main() {
 	fmt.Println("Server running...")
 
 	// Proxies
-	naming := namingproxy.New(shared.LocalHost, shared.NamingPort)
+	naming := namingproxy.New(shared.LocalHost, shared.NamingServicePort)
 
 	// Instantiate application logic, invoker, and request handler
-	ior := shared.IOR{Host: shared.LocalHost, Port: shared.DefaultPort}
+	ior := shared.IOR{Host: shared.LocalHost, Port: shared.ServerPort}
 	invoker := calculatorinvoker.NewInvoker(ior.Host, ior.Port)
 
 	naming.Bind("calculator", shared.NewIOR(invoker.Ior.Host, invoker.Ior.Port))

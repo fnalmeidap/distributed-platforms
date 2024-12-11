@@ -25,7 +25,7 @@ type LeaseManager struct {
 func NewLeaseManager() *LeaseManager {
 	return &LeaseManager{
 		Leases:             make(map[string]Lease),
-		NamingServiceProxy: namingproxy.New(shared.LocalHost, shared.NamingPort),
+		NamingServiceProxy: namingproxy.New(shared.LocalHost, shared.NamingServicePort),
 	}
 }
 

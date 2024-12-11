@@ -30,7 +30,7 @@ func (inv Invoker) Invoke() {
 	var ans int
 	var c *calculator.Calculator
 
-	iorToServer := shared.IOR{Host: shared.LocalHost, Port: shared.DefaultPortClientServer}
+	iorToServer := shared.IOR{Host: shared.LocalHost, Port: shared.ClientServerPort}
 	go lcm.Lm.CleanupExpiredLeases(iorToServer)
 
 	for {
