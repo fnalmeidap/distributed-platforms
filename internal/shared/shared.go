@@ -32,10 +32,9 @@ func NewIOR(h string, p int) IOR {
 
 const MaxConnectionAttempts int = 30
 const LocalHost string = "localhost"
-const DefaultPort int = 1999
 
-var DefaultPortClientServer int = 1998
-
-const DefaultLeasingTimeSeconds float64 = 15
-const NamingPort int = 1313
-const CalculadoraPort int = 1314
+const ServerPort int = 1999
+const ClientServerPort int = 1998
+const NamingServicePort int = 1313
+const CalculatorPort int = 1314
+const DefaultLeasingTimeSeconds float64 = 10

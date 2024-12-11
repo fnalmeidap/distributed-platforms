@@ -40,7 +40,7 @@ func (lcm LifecycleManager) Lease(d time.Duration, c **calculator.Calculator) {
 func (lcm LifecycleManager) MaybeAddRemoteObjectBinding() {
 	rs := lcm.Lm.NamingServiceProxy.Find("calculator")
 	if rs.LeaseName != "calculator" {
-		lcm.Lm.NamingServiceProxy.Bind("calculator", shared.IOR{Host: shared.LocalHost, Port: shared.DefaultPortClientServer})
+		lcm.Lm.NamingServiceProxy.Bind("calculator", shared.IOR{Host: shared.LocalHost, Port: shared.ClientServerPort})
 	}
 }
 
