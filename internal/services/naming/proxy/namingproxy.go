@@ -59,6 +59,7 @@ func (h *NamingProxy) Find(_p1 string) shared.IOR {
 	_ior.Port = int(_r2["Port"].(float64))
 	_ior.Id = int(_r2["Id"].(float64))
 	_ior.TypeName = _r2["TypeName"].(string)
+	_ior.LeaseName = _r2["LeaseName"].(string)
 
 	return _ior
 }

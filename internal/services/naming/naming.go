@@ -22,7 +22,7 @@ func (n *NamingService) Bind(s string, i shared.IOR) bool {
 	if ok {
 		r = false // service already registered
 	} else { // service not registered
-		n.Repository[s] = shared.IOR{TypeName: i.TypeName, Host: i.Host, Port: i.Port}
+		n.Repository[s] = shared.IOR{TypeName: i.TypeName, Host: i.Host, Port: i.Port, LeaseName: s}
 		r = true
 	}
 

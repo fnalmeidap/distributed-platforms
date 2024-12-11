@@ -23,19 +23,25 @@ func (lcm LifecycleManager) Lease(d time.Duration, c **calculator.Calculator) {
 	if lcm.HasLease() {
 		if lcm.Lm.LeaseType == 0 {
 			fmt.Println("\t Como lease pertence a tipo 0, lease renovado a cada chamada")
-			fmt.Println("\t Como lease pertence a tipo 0, lease renovado a cada chamada")
 			lcm.RenewLease()
 		}
 		return
 	}
 
 	// Creates new lease if no lease is currently active
-	fmt.Println("DOES NOT HAVE LEASE")
 	if (lcm.Lm.LeaseType == 0) && (!lcm.Lm.LeaseOkayFlag) {
 		lcm.CreateLease(d, c)
+		lcm.MaybeAddRemoteObjectBinding()
 	}
 	// TODO: is this condition okay?
 
+}
+
+func (lcm LifecycleManager) MaybeAddRemoteObjectBinding() {
+	rs := lcm.Lm.NamingServiceProxy.Find("calculator")
+	if rs.LeaseName != "calculator" {
+		lcm.Lm.NamingServiceProxy.Bind("calculator", shared.IOR{Host: shared.LocalHost, Port: shared.DefaultPortClientServer})
+	}
 }
 
 func (lcm LifecycleManager) CreateLease(d time.Duration, c **calculator.Calculator) {
