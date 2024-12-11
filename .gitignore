@@ -26,3 +26,6 @@ go.work.sum
 
 # binaries
 bin/
+server
+naming
+client
