@@ -9,6 +9,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 func leaseExtend(T int, c calculatorproxy.CalculatorProxy) {
@@ -53,31 +54,23 @@ func calculation(num1 int, num2 int, operator string, c calculatorproxy.Calculat
 		return
 	}
 
-	if status == "ok" {
-		// Display the result
-		fmt.Println("Result:", result)
-		return
-	} else {
+	if status != "ok" {
+		// Problem occured when calling remote object via proxy
 		fmt.Println("operation not available. status: ", status)
 		return
 	}
 
+	// Display the result
+	fmt.Println("Result:", result)
 }
 
-func main() {
+func handleUserInput(proxy *calculatorproxy.CalculatorProxy, wg *sync.WaitGroup) {
+	defer wg.Done()
 	reader := bufio.NewReader(os.Stdin)
 
 	fmt.Println("Welcome to the Calculator!")
 	fmt.Println("Enter your calculation in the format: number1 operator number2 (e.g., 12 + 5)")
 	fmt.Println("Type 'exit' to quit, 'extend_lease' to keep using calculator, 'lease_type_[x]' to set the type of leasing, [x] can be 0, 1 or 2 or 'new_lease' to bypass deleted resource and allocate again")
-
-	naming := namingproxy.New(shared.LocalHost, shared.NamingServicePort)
-	ior := naming.Find("calculator")
-
-	iorFromServer := shared.IOR{Host: shared.LocalHost, Port: shared.ClientServerPort}
-	c := calculatorproxy.New(ior)
-
-	go c.AliveCheck(iorFromServer)
 
 	for {
 		// Prompt user for input
@@ -98,16 +91,16 @@ func main() {
 		if input == "lease_type_0" {
 			// nesse tipo de invocacao, o lease eh renovado a cada chamada do obj remoto.
 			fmt.Println("TIPO 0")
-			leaseTypeSet("lease_type_0", c)
+			leaseTypeSet("lease_type_0", *proxy)
 
 		} else if input == "lease_type_1" {
 			// nesse tipo de invocacao, o lease somente eh renovado por uma chamada especifica do cliente: leaseExtend()
 			fmt.Println("TIPO 1")
-			leaseTypeSet("lease_type_1", c)
+			leaseTypeSet("lease_type_1", *proxy)
 
 		} else if input == "lease_type_2" {
 			fmt.Println("TIPO 2")
-			leaseTypeSet("lease_type_2", c)
+			leaseTypeSet("lease_type_2", *proxy)
 			/**
 			The distributed object middleware informs the client of a lease’s
 			upcoming expiration, allowing the client to specify an extension
@@ -121,7 +114,7 @@ func main() {
 			so they have to be servers, too.
 			*/
 		} else if input == "new_lease" {
-			c.GetLeaseCreate("new_lease")
+			proxy.GetLeaseCreate("new_lease")
 		} else {
 			// Split the input
 			parts := strings.Split(input, " ")
@@ -138,7 +131,7 @@ func main() {
 					continue
 				}
 				if parts[0] == "extend_lease" {
-					leaseExtend(int(T), c)
+					leaseExtend(int(T), *proxy)
 				}
 			} else {
 				// Parse the numbers
@@ -157,9 +150,23 @@ func main() {
 				// Get the operator
 				operator := parts[1]
 
-				calculation(int(num1), int(num2), operator, c)
+				calculation(int(num1), int(num2), operator, *proxy)
 			}
 		}
 	}
+}
 
+func main() {
+	var wg sync.WaitGroup
+	naming := namingproxy.New(shared.LocalHost, shared.NamingServicePort)
+	iorFromCalculator := naming.Find("calculator")
+	iorFromServer := shared.IOR{Host: shared.LocalHost, Port: shared.ClientServerPort}
+
+	proxy := calculatorproxy.New(iorFromCalculator)
+
+	wg.Add(2)
+	go proxy.AliveCheck(iorFromServer, &wg)
+	go handleUserInput(&proxy, &wg)
+
+	wg.Wait()
 }

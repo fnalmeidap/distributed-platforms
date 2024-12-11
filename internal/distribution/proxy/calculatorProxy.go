@@ -7,6 +7,7 @@ import (
 	"distributed-platforms/internal/infra/srh"
 	"distributed-platforms/internal/shared"
 	"fmt"
+	"sync"
 )
 
 type CalculatorProxy struct {
@@ -129,7 +130,8 @@ func (p *CalculatorProxy) GetLeaseCreate(lease string) (int, string) {
 	return int(r.Rep.Result[0].(float64)), r.Rep.Result[1].(string)
 }
 
-func (p *CalculatorProxy) AliveCheck(ior shared.IOR) {
+func (p *CalculatorProxy) AliveCheck(ior shared.IOR, wg *sync.WaitGroup) {
+	defer wg.Done()
 	s := srh.NewSRH(ior.Host, ior.Port)
 
 	m := marshaller.Marshaller{}
