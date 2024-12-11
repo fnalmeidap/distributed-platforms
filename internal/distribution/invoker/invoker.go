@@ -90,7 +90,11 @@ func (inv Invoker) Invoke() {
 		params = append(params, ans)
 
 		//TODO: make this variable depending if the lease is still valid or not
-		params = append(params, "ok")
+		if lcm.Lm.LeaseOkayFlag {
+			params = append(params, "ok")
+		} else {
+			params = append(params, "no leasing resource available")
+		}
 
 		// Create miop reply packet
 		miop := miop.CreateReplyMIOP(params)

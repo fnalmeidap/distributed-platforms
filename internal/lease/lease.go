@@ -14,9 +14,10 @@ type Lease struct {
 }
 
 type LeaseManager struct {
-	mu        sync.Mutex
-	Leases    map[string]Lease
-	LeaseType int
+	mu            sync.Mutex
+	Leases        map[string]Lease
+	LeaseType     int
+	LeaseOkayFlag bool
 }
 
 func NewLeaseManager() *LeaseManager {
@@ -31,7 +32,8 @@ func (lm *LeaseManager) NewLease(id string, duration time.Duration) {
 
 	expiration := time.Now().Add(duration)
 	lm.Leases[id] = Lease{id: id, expiresAt: expiration}
-	lm.LeaseType = 2 //default value
+	lm.LeaseType = 2        //default value
+	lm.LeaseOkayFlag = true //as it is being created, its treated as first lease
 	fmt.Printf("Lease %s criado. Expira em: %v\n", id, expiration)
 }
 
@@ -79,6 +81,7 @@ func (lm *LeaseManager) CleanupExpiredLeases(iorToServer shared.IOR) {
 			}
 			if time.Now().After(lease.expiresAt) {
 				fmt.Printf("Lease %s expirou e foi removido\n", id)
+				lm.LeaseOkayFlag = false
 				delete(lm.Leases, id)
 			}
 		}
