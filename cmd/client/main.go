@@ -92,18 +92,17 @@ func main() {
 		if input == "lease_type_0" {
 			// nesse tipo de invocacao, o lease eh renovado a cada chamada do obj remoto.
 			fmt.Println("TIPO 0")
-			c.LeaseTypeSet("lease_type_0")
-			continue
-		}
-		if input == "lease_type_1" {
+			leaseTypeSet("lease_type_0", c)
+
+		} else if input == "lease_type_1" {
 			// nesse tipo de invocacao, o lease somente eh renovado por uma chamada especifica do cliente: leaseExtend()
 			fmt.Println("TIPO 1")
-			c.LeaseTypeSet("lease_type_1")
-			continue
-		}
-		if input == "lease_type_2" {
-			c.LeaseTypeSet("lease_type_2")
-			continue
+			leaseTypeSet("lease_type_1", c)
+
+		} else if input == "lease_type_2" {
+			fmt.Println("TIPO 2")
+			leaseTypeSet("lease_type_2", c)
+
 			/**
 			The distributed object middleware informs the client of a lease’s
 			upcoming expiration, allowing the client to specify an extension
@@ -116,44 +115,45 @@ func main() {
 			liability is that clients need to be able to handle such messages, which typically requires them to provide callback remote objects,
 			so they have to be servers, too.
 			*/
-			fmt.Println("TIPO 2")
-		}
 
-		// Split the input
-		parts := strings.Split(input, " ")
-
-		if (len(parts) != 3) && (len(parts) != 2) {
-			fmt.Println("Invalid input format. Use: number1 operator number2")
-			continue
-		}
-
-		if len(parts) == 2 {
-			T, err := strconv.ParseInt(parts[1], 10, 0)
-			if err != nil {
-				fmt.Println("Invalid number:", parts[1])
-				continue
-			}
-			if parts[0] == "extend_lease" {
-				leaseExtend(int(T), c)
-			}
 		} else {
-			// Parse the numbers
-			num1, err := strconv.ParseInt(parts[0], 10, 0)
-			if err != nil {
-				fmt.Println("Invalid number:", parts[0])
+			fmt.Println("AAAAAAAAAA")
+			// Split the input
+			parts := strings.Split(input, " ")
+
+			if (len(parts) != 3) && (len(parts) != 2) {
+				fmt.Println("Invalid input format. Use: number1 operator number2")
 				continue
 			}
 
-			num2, err := strconv.ParseInt(parts[2], 10, 0)
-			if err != nil {
-				fmt.Println("Invalid number:", parts[2])
-				continue
+			if len(parts) == 2 {
+				T, err := strconv.ParseInt(parts[1], 10, 0)
+				if err != nil {
+					fmt.Println("Invalid number:", parts[1])
+					continue
+				}
+				if parts[0] == "extend_lease" {
+					leaseExtend(int(T), c)
+				}
+			} else {
+				// Parse the numbers
+				num1, err := strconv.ParseInt(parts[0], 10, 0)
+				if err != nil {
+					fmt.Println("Invalid number:", parts[0])
+					continue
+				}
+
+				num2, err := strconv.ParseInt(parts[2], 10, 0)
+				if err != nil {
+					fmt.Println("Invalid number:", parts[2])
+					continue
+				}
+
+				// Get the operator
+				operator := parts[1]
+
+				calculation(int(num1), int(num2), operator, c)
 			}
-
-			// Get the operator
-			operator := parts[1]
-
-			calculation(int(num1), int(num2), operator, c)
 		}
 	}
 

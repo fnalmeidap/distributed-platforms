@@ -29,6 +29,7 @@ func (lm *LeaseManager) NewLease(id string, duration time.Duration) {
 
 	expiration := time.Now().Add(duration)
 	lm.Leases[id] = Lease{id: id, expiresAt: expiration}
+	lm.LeaseType = 0 //default value
 	fmt.Printf("Lease %s criado. Expira em: %v\n", id, expiration)
 }
 
@@ -49,12 +50,19 @@ func (lm *LeaseManager) LeaseTypeSet(leaseType int) {
 }
 
 // Remove Leases expirados
-func (lm *LeaseManager) CleanupExpiredLeases() {
+func (lm *LeaseManager) CleanupExpiredLeases(ch chan string) {
 	for {
 		time.Sleep(1 * time.Second)
 		lm.mu.Lock()
 		for id, lease := range lm.Leases {
 			fmt.Println("Lease expiring in", time.Until(lease.expiresAt).Seconds())
+			if lm.LeaseType == 2 {
+				if time.Now().After(lease.expiresAt.Add(-6*time.Second)) && time.Now().Before(lease.expiresAt.Add(-5*time.Second)) {
+					fmt.Println("Warning Client that resource will be deleted in 5 s ")
+					ch <- id
+					// TODO: HOW???!!
+				}
+			}
 			if time.Now().After(lease.expiresAt) {
 				fmt.Printf("Lease %s expirou e foi removido\n", id)
 				delete(lm.Leases, id)
