@@ -68,7 +68,7 @@ func main() {
 
 	fmt.Println("Welcome to the Calculator!")
 	fmt.Println("Enter your calculation in the format: number1 operator number2 (e.g., 12 + 5)")
-	fmt.Println("Type 'exit' to quit, 'extend_lease' to keep using calculator, 'lease_type_[x]' to set the type of leasing, [x] can be 0, 1 or 2 ")
+	fmt.Println("Type 'exit' to quit, 'extend_lease' to keep using calculator, 'lease_type_[x]' to set the type of leasing, [x] can be 0, 1 or 2 or 'new_lease' to bypass deleted resource and allocate again")
 
 	ior := shared.IOR{Host: shared.LocalHost, Port: shared.DefaultPort}
 	iorFromServer := shared.IOR{Host: shared.LocalHost, Port: shared.DefaultPortClientServer}
@@ -105,7 +105,6 @@ func main() {
 		} else if input == "lease_type_2" {
 			fmt.Println("TIPO 2")
 			leaseTypeSet("lease_type_2", c)
-
 			/**
 			The distributed object middleware informs the client of a lease’s
 			upcoming expiration, allowing the client to specify an extension
@@ -118,7 +117,8 @@ func main() {
 			liability is that clients need to be able to handle such messages, which typically requires them to provide callback remote objects,
 			so they have to be servers, too.
 			*/
-
+		} else if input == "new_lease" {
+			c.GetLeaseCreate("new_lease")
 		} else {
 			// Split the input
 			parts := strings.Split(input, " ")

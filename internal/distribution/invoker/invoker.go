@@ -63,6 +63,8 @@ func (inv Invoker) Invoke() {
 			}
 			lcm.LeaseTypeSet(a) //_p2 is not used here.
 			ans = 0
+		} else if r.Operation == "GetLease" {
+			lcm.CreateLease(kDefaultLeaseDuration, &c)
 		} else {
 
 			_p1 := int(r.Params[0].(float64))

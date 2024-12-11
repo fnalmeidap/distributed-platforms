@@ -115,6 +115,20 @@ func (p *CalculatorProxy) LeaseTypeSet(lease string) (int, string) {
 	return int(r.Rep.Result[0].(float64)), r.Rep.Result[1].(string)
 }
 
+func (p *CalculatorProxy) GetLeaseCreate(lease string) (int, string) {
+	params := make([]interface{}, 2)
+	params[0] = lease
+	params[1] = 0
+
+	req := shared.Request{Operation: "GetLease", Params: params}
+	inv := shared.Invocation{Ior: p.Ior, Request: req}
+
+	requestor := requestor.Requestor{}
+	r := requestor.Invoke(inv)
+
+	return int(r.Rep.Result[0].(float64)), r.Rep.Result[1].(string)
+}
+
 func (p *CalculatorProxy) AliveCheck(ior shared.IOR) {
 	s := srh.NewSRH(ior.Host, ior.Port)
 
@@ -131,7 +145,7 @@ func (p *CalculatorProxy) AliveCheck(ior shared.IOR) {
 
 		if r.Operation == "ReleaseWarn" {
 			_p1 := r.Params[0].(string)
-			fmt.Print("lease of id", _p1, "will expire\n> ")
+			fmt.Print("lease of id ", _p1, " will expire\n> ")
 		}
 
 		s.Send(b) // i dont care about this answer
