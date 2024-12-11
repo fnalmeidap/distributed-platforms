@@ -69,11 +69,15 @@ func main() {
 
 	fmt.Println("Welcome to the Calculator!")
 	fmt.Println("Enter your calculation in the format: number1 operator number2 (e.g., 12 + 5)")
-	fmt.Println("Type 'exit' to quit, 'extend_lease' to keep using calculator, 'lease_type_[x]' to set the type of leasing, [x] can be 0, 1 or 2 ")
-	
-  naming := namingproxy.New(shared.LocalHost, shared.NamingPort)
+	fmt.Println("Type 'exit' to quit, 'extend_lease' to keep using calculator, 'lease_type_[x]' to set the type of leasing, [x] can be 0, 1 or 2 or 'new_lease' to bypass deleted resource and allocate again")
+
+	naming := namingproxy.New(shared.LocalHost, shared.NamingPort)
 	ior := naming.Find("calculator")
+
+	iorFromServer := shared.IOR{Host: shared.LocalHost, Port: shared.DefaultPortClientServer}
 	c := calculatorproxy.New(ior)
+
+	go c.AliveCheck(iorFromServer)
 
 	for {
 		// Prompt user for input
@@ -94,19 +98,16 @@ func main() {
 		if input == "lease_type_0" {
 			// nesse tipo de invocacao, o lease eh renovado a cada chamada do obj remoto.
 			fmt.Println("TIPO 0")
-			c.LeaseTypeSet("lease_type_0")
-			continue
-		}
-		if input == "lease_type_1" {
+			leaseTypeSet("lease_type_0", c)
+
+		} else if input == "lease_type_1" {
 			// nesse tipo de invocacao, o lease somente eh renovado por uma chamada especifica do cliente: leaseExtend()
 			fmt.Println("TIPO 1")
-			c.LeaseTypeSet("lease_type_1")
-			continue
-		}
-		if input == "lease_type_2" {
-			c.LeaseTypeSet("lease_type_2")
+			leaseTypeSet("lease_type_1", c)
+
+		} else if input == "lease_type_2" {
 			fmt.Println("TIPO 2")
-			continue
+			leaseTypeSet("lease_type_2", c)
 			/**
 			The distributed object middleware informs the client of a lease’s
 			upcoming expiration, allowing the client to specify an extension
@@ -119,43 +120,45 @@ func main() {
 			liability is that clients need to be able to handle such messages, which typically requires them to provide callback remote objects,
 			so they have to be servers, too.
 			*/
-		}
-
-		// Split the input
-		parts := strings.Split(input, " ")
-
-		if (len(parts) != 3) && (len(parts) != 2) {
-			fmt.Println("Invalid input format. Use: number1 operator number2")
-			continue
-		}
-
-		if len(parts) == 2 {
-			T, err := strconv.ParseInt(parts[1], 10, 0)
-			if err != nil {
-				fmt.Println("Invalid number:", parts[1])
-				continue
-			}
-			if parts[0] == "extend_lease" {
-				leaseExtend(int(T), c)
-			}
+		} else if input == "new_lease" {
+			c.GetLeaseCreate("new_lease")
 		} else {
-			// Parse the numbers
-			num1, err := strconv.ParseInt(parts[0], 10, 0)
-			if err != nil {
-				fmt.Println("Invalid number:", parts[0])
+			// Split the input
+			parts := strings.Split(input, " ")
+
+			if (len(parts) != 3) && (len(parts) != 2) {
+				fmt.Println("Invalid input format. Use: number1 operator number2 for operation\n\rOR\n\rextend_lease [extra lease time in sec]")
 				continue
 			}
 
-			num2, err := strconv.ParseInt(parts[2], 10, 0)
-			if err != nil {
-				fmt.Println("Invalid number:", parts[2])
-				continue
+			if len(parts) == 2 {
+				T, err := strconv.ParseInt(parts[1], 10, 0)
+				if err != nil {
+					fmt.Println("Invalid number:", parts[1])
+					continue
+				}
+				if parts[0] == "extend_lease" {
+					leaseExtend(int(T), c)
+				}
+			} else {
+				// Parse the numbers
+				num1, err := strconv.ParseInt(parts[0], 10, 0)
+				if err != nil {
+					fmt.Println("Invalid number:", parts[0])
+					continue
+				}
+
+				num2, err := strconv.ParseInt(parts[2], 10, 0)
+				if err != nil {
+					fmt.Println("Invalid number:", parts[2])
+					continue
+				}
+
+				// Get the operator
+				operator := parts[1]
+
+				calculation(int(num1), int(num2), operator, c)
 			}
-
-			// Get the operator
-			operator := parts[1]
-
-			calculation(int(num1), int(num2), operator, c)
 		}
 	}
 

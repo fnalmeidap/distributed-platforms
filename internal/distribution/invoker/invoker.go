@@ -30,9 +30,11 @@ func (inv Invoker) Invoke() {
 	var ans int
 	var c *calculator.Calculator
 
-	go lcm.Lm.CleanupExpiredLeases()
+	iorToServer := shared.IOR{Host: shared.LocalHost, Port: shared.DefaultPortClientServer}
+	go lcm.Lm.CleanupExpiredLeases(iorToServer)
 
 	for {
+
 		// Invoke SRH
 		b := s.Receive()
 
@@ -61,6 +63,8 @@ func (inv Invoker) Invoke() {
 			}
 			lcm.LeaseTypeSet(a) //_p2 is not used here.
 			ans = 0
+		} else if r.Operation == "GetLease" {
+			lcm.CreateLease(kDefaultLeaseDuration, &c)
 		} else {
 
 			_p1 := int(r.Params[0].(float64))
@@ -88,7 +92,11 @@ func (inv Invoker) Invoke() {
 		params = append(params, ans)
 
 		//TODO: make this variable depending if the lease is still valid or not
-		params = append(params, "ok")
+		if lcm.Lm.LeaseOkayFlag {
+			params = append(params, "ok")
+		} else {
+			params = append(params, "no leasing resource available")
+		}
 
 		// Create miop reply packet
 		miop := miop.CreateReplyMIOP(params)

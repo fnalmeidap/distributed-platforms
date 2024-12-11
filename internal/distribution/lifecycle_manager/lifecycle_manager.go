@@ -23,6 +23,7 @@ func (lcm LifecycleManager) Lease(d time.Duration, c **calculator.Calculator) {
 	if lcm.HasLease() {
 		if lcm.Lm.LeaseType == 0 {
 			fmt.Println("\t Como lease pertence a tipo 0, lease renovado a cada chamada")
+			fmt.Println("\t Como lease pertence a tipo 0, lease renovado a cada chamada")
 			lcm.RenewLease()
 		}
 		return
@@ -30,8 +31,11 @@ func (lcm LifecycleManager) Lease(d time.Duration, c **calculator.Calculator) {
 
 	// Creates new lease if no lease is currently active
 	fmt.Println("DOES NOT HAVE LEASE")
-	// TODO: review condition to create/recreate lease. "easy" solution would be for a flag in LifecycleManager struct maybe? idk
-	lcm.CreateLease(d, c)
+	if (lcm.Lm.LeaseType == 0) && (!lcm.Lm.LeaseOkayFlag) {
+		lcm.CreateLease(d, c)
+	}
+	// TODO: is this condition okay?
+
 }
 
 func (lcm LifecycleManager) CreateLease(d time.Duration, c **calculator.Calculator) {

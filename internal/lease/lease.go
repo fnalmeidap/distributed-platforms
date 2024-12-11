@@ -1,6 +1,7 @@
 package lease
 
 import (
+	"distributed-platforms/internal/distribution/requestor"
 	namingproxy "distributed-platforms/internal/services/naming/proxy"
 	"distributed-platforms/internal/shared"
 	"fmt"
@@ -17,7 +18,8 @@ type LeaseManager struct {
 	mu                 sync.Mutex
 	Leases             map[string]Lease
 	NamingServiceProxy namingproxy.NamingProxy
-	LeaseType int
+	LeaseType          int
+	LeaseOkayFlag      bool
 }
 
 func NewLeaseManager() *LeaseManager {
@@ -33,6 +35,8 @@ func (lm *LeaseManager) NewLease(id string, duration time.Duration) {
 
 	expiration := time.Now().Add(duration)
 	lm.Leases[id] = Lease{id: id, expiresAt: expiration}
+	lm.LeaseType = 2        //default value
+	lm.LeaseOkayFlag = true //as it is being created, its treated as first lease
 	fmt.Printf("Lease %s criado. Expira em: %v\n", id, expiration)
 }
 
@@ -52,8 +56,21 @@ func (lm *LeaseManager) LeaseTypeSet(leaseType int) {
 	lm.LeaseType = leaseType
 }
 
+func clientSendMsg(iorToServer shared.IOR, id string) {
+	params := make([]interface{}, 2)
+	params[0] = id
+	params[1] = 0
+
+	req := shared.Request{Operation: "ReleaseWarn", Params: params}
+	inv := shared.Invocation{Ior: iorToServer, Request: req}
+
+	requestor := requestor.Requestor{}
+	requestor.Invoke(inv)
+
+}
+
 // Remove Leases expirados
-func (lm *LeaseManager) CleanupExpiredLeases() {
+func (lm *LeaseManager) CleanupExpiredLeases(iorToServer shared.IOR) {
 	for {
 		time.Sleep(1 * time.Second)
 		lm.mu.Lock()
@@ -62,12 +79,12 @@ func (lm *LeaseManager) CleanupExpiredLeases() {
 			if lm.LeaseType == 2 {
 				if time.Now().After(lease.expiresAt.Add(-6*time.Second)) && time.Now().Before(lease.expiresAt.Add(-5*time.Second)) {
 					fmt.Println("Warning Client that resource will be deleted in 5 s ")
-					// TODO: HOW???!!
+					clientSendMsg(iorToServer, id)
 				}
 			}
-
 			if time.Now().After(lease.expiresAt) {
 				fmt.Printf("Lease %s expirou e foi removido\n", id)
+				lm.LeaseOkayFlag = false
 				delete(lm.Leases, id)
 				lm.NamingServiceProxy.Unbind(id)
 			}
