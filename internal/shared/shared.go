@@ -39,3 +39,4 @@ const NamingServicePort int = 1313
 const CalculatorPort int = 1314
 const DefaultLeasingTimeSeconds float64 = 10
 const PerformaceEpisodes int = 10000
+const PerformanceTestLeaseExtend int = 10

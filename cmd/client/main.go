@@ -17,10 +17,10 @@ func leaseExtend(T int, c calculatorproxy.CalculatorProxy) {
 	_, status := c.LeaseExtend(T)
 	if status == "ok" {
 		// Display the result
-		fmt.Println("Command to extend lease by", T, "seconds!")
+		// fmt.Println("Command to extend lease by", T, "seconds!")
 		return
 	} else {
-		fmt.Println("operation not available. status: ", status)
+		// fmt.Println("operation not available. status: ", status)
 		return
 	}
 }
@@ -157,8 +157,29 @@ func handleUserInput(proxy *calculatorproxy.CalculatorProxy, wg *sync.WaitGroup)
 	}
 }
 
-func performanceTest(proxy *calculatorproxy.CalculatorProxy, wg *sync.WaitGroup) {
+func performanceTestL0(proxy *calculatorproxy.CalculatorProxy, wg *sync.WaitGroup) {
 	leaseTypeSet("lease_type_0", *proxy)
+	t1 := time.Now()
+	for i := 0; i < shared.PerformaceEpisodes; i++ {
+		proxy.Sum(1, 2)
+	}
+	t2 := time.Since(t1).Seconds()
+	fmt.Println("Time to execute", shared.PerformaceEpisodes, "calls to Sum(1, 2):", t2, "microseconds")
+}
+
+func performanceTestL1(proxy *calculatorproxy.CalculatorProxy, wg *sync.WaitGroup) {
+	leaseTypeSet("lease_type_1", *proxy)
+	t1 := time.Now()
+	for i := 0; i < shared.PerformaceEpisodes; i++ {
+		proxy.Sum(1, 2)
+		leaseExtend(shared.PerformanceTestLeaseExtend, *proxy)
+	}
+	t2 := time.Since(t1).Seconds()
+	fmt.Println("Time to execute", shared.PerformaceEpisodes, "calls to Sum(1, 2):", t2, "microseconds")
+}
+
+func performanceTestL2(proxy *calculatorproxy.CalculatorProxy, wg *sync.WaitGroup) {
+	leaseTypeSet("lease_type_2", *proxy)
 	t1 := time.Now()
 	for i := 0; i < shared.PerformaceEpisodes; i++ {
 		proxy.Sum(1, 2)
@@ -177,8 +198,8 @@ func main() {
 
 	wg.Add(2)
 	go proxy.AliveCheck(iorFromServer, &wg)
-	go handleUserInput(&proxy, &wg)
-	//go performanceTest(&proxy, &wg)
+	// go handleUserInput(&proxy, &wg)
+	go performanceTestL0(&proxy, &wg)
 
 	wg.Wait()
 }
