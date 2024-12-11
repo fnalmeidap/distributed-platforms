@@ -7,6 +7,7 @@ import (
 	"distributed-platforms/internal/infra/srh"
 	"distributed-platforms/internal/shared"
 	"fmt"
+	"sync"
 )
 
 type CalculatorProxy struct {
@@ -25,9 +26,9 @@ func (p *CalculatorProxy) Sum(p1, p2 int) (int, string) {
 
 	req := shared.Request{Operation: "Sum", Params: params}
 	inv := shared.Invocation{Ior: p.Ior, Request: req}
-	fmt.Println("Request params...")
-	fmt.Printf("Operation: %s\n", req.Operation)
-	fmt.Printf("Parameters: [%d,%d]\n", req.Params...)
+	// fmt.Println("Request params...")
+	// fmt.Printf("Operation: %s\n", req.Operation)
+	// fmt.Printf("Parameters: [%d,%d]\n", req.Params...)
 
 	requestor := requestor.Requestor{}
 	r := requestor.Invoke(inv)
@@ -42,9 +43,9 @@ func (p *CalculatorProxy) Sub(p1, p2 int) (int, string) {
 
 	req := shared.Request{Operation: "Sub", Params: params}
 	inv := shared.Invocation{Ior: p.Ior, Request: req}
-	fmt.Println("Request params...")
-	fmt.Printf("Operation: %s\n", req.Operation)
-	fmt.Printf("Parameters: [%d,%d]\n", req.Params...)
+	// fmt.Println("Request params...")
+	// fmt.Printf("Operation: %s\n", req.Operation)
+	// fmt.Printf("Parameters: [%d,%d]\n", req.Params...)
 
 	requestor := requestor.Requestor{}
 	r := requestor.Invoke(inv)
@@ -59,9 +60,9 @@ func (p *CalculatorProxy) Div(p1, p2 int) (int, string) {
 
 	req := shared.Request{Operation: "Div", Params: params}
 	inv := shared.Invocation{Ior: p.Ior, Request: req}
-	fmt.Println("Request params...")
-	fmt.Printf("Operation: %s\n", req.Operation)
-	fmt.Printf("Parameters: [%d,%d]\n", req.Params...)
+	// fmt.Println("Request params...")
+	// fmt.Printf("Operation: %s\n", req.Operation)
+	// fmt.Printf("Parameters: [%d,%d]\n", req.Params...)
 
 	requestor := requestor.Requestor{}
 	r := requestor.Invoke(inv)
@@ -76,9 +77,9 @@ func (p *CalculatorProxy) Mul(p1, p2 int) (int, string) {
 
 	req := shared.Request{Operation: "Mul", Params: params}
 	inv := shared.Invocation{Ior: p.Ior, Request: req}
-	fmt.Println("Request params...")
-	fmt.Printf("Operation: %s\n", req.Operation)
-	fmt.Printf("Parameters: [%d,%d]\n", req.Params...)
+	// fmt.Println("Request params...")
+	// fmt.Printf("Operation: %s\n", req.Operation)
+	// fmt.Printf("Parameters: [%d,%d]\n", req.Params...)
 
 	requestor := requestor.Requestor{}
 	r := requestor.Invoke(inv)
@@ -93,7 +94,7 @@ func (p *CalculatorProxy) LeaseExtend(T int) (int, string) {
 
 	req := shared.Request{Operation: "LeaseExtend", Params: params}
 	inv := shared.Invocation{Ior: p.Ior, Request: req}
-	fmt.Println("Extending lease by:", T, "seconds")
+	// fmt.Println("Extending lease by:", T, "seconds")
 
 	requestor := requestor.Requestor{}
 	r := requestor.Invoke(inv)
@@ -129,7 +130,8 @@ func (p *CalculatorProxy) GetLeaseCreate(lease string) (int, string) {
 	return int(r.Rep.Result[0].(float64)), r.Rep.Result[1].(string)
 }
 
-func (p *CalculatorProxy) AliveCheck(ior shared.IOR) {
+func (p *CalculatorProxy) AliveCheck(ior shared.IOR, wg *sync.WaitGroup) {
+	defer wg.Done()
 	s := srh.NewSRH(ior.Host, ior.Port)
 
 	m := marshaller.Marshaller{}
