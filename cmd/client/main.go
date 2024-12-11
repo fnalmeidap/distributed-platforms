@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 )
 
 func leaseExtend(T int, c calculatorproxy.CalculatorProxy) {
@@ -156,6 +157,16 @@ func handleUserInput(proxy *calculatorproxy.CalculatorProxy, wg *sync.WaitGroup)
 	}
 }
 
+func performanceTest(proxy *calculatorproxy.CalculatorProxy, wg *sync.WaitGroup) {
+	leaseTypeSet("lease_type_0", *proxy)
+	t1 := time.Now()
+	for i := 0; i < shared.PerformaceEpisodes; i++ {
+		proxy.Sum(1, 2)
+	}
+	t2 := time.Since(t1).Seconds()
+	fmt.Println("Time to execute", shared.PerformaceEpisodes, "calls to Sum(1, 2):", t2, "microseconds")
+}
+
 func main() {
 	var wg sync.WaitGroup
 	naming := namingproxy.New(shared.LocalHost, shared.NamingServicePort)
@@ -167,6 +178,7 @@ func main() {
 	wg.Add(2)
 	go proxy.AliveCheck(iorFromServer, &wg)
 	go handleUserInput(&proxy, &wg)
+	//go performanceTest(&proxy, &wg)
 
 	wg.Wait()
 }
