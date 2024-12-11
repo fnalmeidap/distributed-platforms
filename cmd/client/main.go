@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	calculatorproxy "distributed-platforms/internal/distribution/proxy"
+	namingproxy "distributed-platforms/internal/services/naming/proxy"
 	shared "distributed-platforms/internal/shared"
 	"fmt"
 	"os"
@@ -70,7 +71,9 @@ func main() {
 	fmt.Println("Enter your calculation in the format: number1 operator number2 (e.g., 12 + 5)")
 	fmt.Println("Type 'exit' to quit, 'extend_lease' to keep using calculator, 'lease_type_[x]' to set the type of leasing, [x] can be 0, 1 or 2 or 'new_lease' to bypass deleted resource and allocate again")
 
-	ior := shared.IOR{Host: shared.LocalHost, Port: shared.DefaultPort}
+	naming := namingproxy.New(shared.LocalHost, shared.NamingPort)
+	ior := naming.Find("calculator")
+
 	iorFromServer := shared.IOR{Host: shared.LocalHost, Port: shared.DefaultPortClientServer}
 	c := calculatorproxy.New(ior)
 

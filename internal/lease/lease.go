@@ -2,6 +2,7 @@ package lease
 
 import (
 	"distributed-platforms/internal/distribution/requestor"
+	namingproxy "distributed-platforms/internal/services/naming/proxy"
 	"distributed-platforms/internal/shared"
 	"fmt"
 	"sync"
@@ -14,15 +15,17 @@ type Lease struct {
 }
 
 type LeaseManager struct {
-	mu            sync.Mutex
-	Leases        map[string]Lease
-	LeaseType     int
-	LeaseOkayFlag bool
+	mu                 sync.Mutex
+	Leases             map[string]Lease
+	NamingServiceProxy namingproxy.NamingProxy
+	LeaseType          int
+	LeaseOkayFlag      bool
 }
 
 func NewLeaseManager() *LeaseManager {
 	return &LeaseManager{
-		Leases: make(map[string]Lease),
+		Leases:             make(map[string]Lease),
+		NamingServiceProxy: namingproxy.New(shared.LocalHost, shared.NamingPort),
 	}
 }
 
@@ -83,6 +86,7 @@ func (lm *LeaseManager) CleanupExpiredLeases(iorToServer shared.IOR) {
 				fmt.Printf("Lease %s expirou e foi removido\n", id)
 				lm.LeaseOkayFlag = false
 				delete(lm.Leases, id)
+				lm.NamingServiceProxy.Unbind(id)
 			}
 		}
 		lm.mu.Unlock()
